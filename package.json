@@ -1,0 +1,26 @@
+{
+  "name": "english-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "check-content": "node --experimental-strip-types scripts/check-content.ts",
+    "check-private": "node --experimental-strip-types scripts/test-private-course.ts",
+    "course-manager": "node --experimental-strip-types scripts/course-manager.ts"
+  },
+  "dependencies": {
+    "idb": "8.0.4",
+    "preact": "10.29.8"
+  },
+  "devDependencies": {
+    "@babel/core": "7.29.7",
+    "@preact/preset-vite": "2.10.6",
+    "@types/node": "26.6.5",
+    "typescript": "5.9.3",
+    "vite": "8.3.4",
+    "vite-plugin-pwa": "2.0.0"
+  }
+}
