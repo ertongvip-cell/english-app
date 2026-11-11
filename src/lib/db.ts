@@ -4,6 +4,7 @@ import type { SrsState } from './srs.ts'
 import { addCard, emptyDay, type DayRecord } from './daily.ts'
 import { dayStr } from './date.ts'
 import type { LearningPlan, PrivateLesson } from '../private-course/schema.ts'
+import { emptyMastery, type LessonMastery } from './intensive.ts'
 
 export interface CardProgress {
   id: string // 卡片 key，例如 listen:w1l1
@@ -63,16 +64,17 @@ interface AppDB extends DBSchema {
   imports: { key: string; value: ImportedLesson }
   assessments: { key: string; value: AssessmentRecord }
   plans: { key: string; value: LearningPlan }
+  lessonMastery: { key: string; value: LessonMastery }
 }
 
-export const STORES = ['kv', 'srs', 'daily', 'progress', 'imports', 'assessments', 'plans'] as const
+export const STORES = ['kv', 'srs', 'daily', 'progress', 'imports', 'assessments', 'plans', 'lessonMastery'] as const
 export type StoreName = (typeof STORES)[number]
 
 let dbPromise: Promise<IDBPDatabase<AppDB>> | null = null
 
 export function db(): Promise<IDBPDatabase<AppDB>> {
   if (!dbPromise) {
-    dbPromise = openDB<AppDB>('english-app', 2, {
+    dbPromise = openDB<AppDB>('english-app', 3, {
       upgrade(d, oldVersion) {
         if (oldVersion < 1) {
           d.createObjectStore('kv')
@@ -83,6 +85,7 @@ export function db(): Promise<IDBPDatabase<AppDB>> {
           d.createObjectStore('assessments', { keyPath: 'id' })
         }
         if (oldVersion < 2) d.createObjectStore('plans', { keyPath: 'id' })
+        if (oldVersion < 3) d.createObjectStore('lessonMastery', { keyPath: 'lessonId' })
       },
     })
     // 申请持久化存储，降低被 Safari 自动清理的概率
@@ -231,4 +234,18 @@ export async function putPrivateBatch(items: ImportedLesson[], plans: LearningPl
 
 export async function clearCurrentPrivateLesson(): Promise<void> {
   await (await db()).delete('kv', 'currentPrivateLessonId')
+}
+
+// ---------- 逐课精练掌握 ----------
+export async function getLessonMastery(lessonId: string): Promise<LessonMastery> {
+  const saved = await (await db()).get('lessonMastery', lessonId)
+  return saved ? { ...emptyMastery(lessonId), ...saved, currentStage: saved.currentStage ?? 0 } : emptyMastery(lessonId)
+}
+
+export async function putLessonMastery(value: LessonMastery): Promise<void> {
+  await (await db()).put('lessonMastery', value)
+}
+
+export async function allLessonMastery(): Promise<LessonMastery[]> {
+  return (await db()).getAll('lessonMastery')
 }

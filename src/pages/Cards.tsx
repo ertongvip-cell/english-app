@@ -6,6 +6,7 @@ import { isDue, newState, review, type Grade } from '../lib/srs.ts'
 import { canRecognize, errorText, listen, speak, speakAll, stopSpeaking } from '../lib/speech.ts'
 import { judge, scoreSentence, type SentenceScore } from '../lib/score.ts'
 import { PrivateCourse } from './PrivateCourse.tsx'
+import { ReviewCard } from './cards/ReviewCard.tsx'
 
 const Back=()=> <button class="back" onClick={()=>history.back()}>‹ 返回</button>
 const Meter=({n,total}:{n:number,total:number})=><div class="meter"><i style={{width:`${Math.min(100,n/total*100)}%`}}/></div>
@@ -65,4 +66,4 @@ export function DialogueCard({id,onDone}:{id:string;onDone:()=>void}){
  return <main><Back/><p class="eyebrow">情景对话 · {d.roleName}</p><h1>{d.title}</h1><p>{d.intro}</p><section class="chat">{d.turns.slice(0,i+1).map((t,n)=><div class={`bubble ${t.role}`}>{t.role==='app'?<><small>{d.roleName}</small>{t.en}<button onClick={()=>speak(t.en)}>◖))</button></>:<i>轮到你回应</i>}</div>)}</section>{turn.role==='app'?<button class="primary wide" onClick={next}>回应</button>:<section class="card"><h2>{turn.zh}</h2><Recognize target={turn.answers[0]} answers={turn.answers} keywords={turn.keywords} onPass={()=>setPass(true)}/><details><summary>卡住了？看提示</summary><p>{turn.answers[0]}</p></details><button class="primary wide" disabled={!pass} onClick={next}>完成对话</button></section>}</main>
 }
 
-export function CardRoute({kind,id}:{kind:string;id:string}){const done=()=>{location.hash='#/'};if(kind==='private')return <PrivateCourse id={id} onDone={done}/>;if(kind==='vocab')return <VocabCard lessonId={id||undefined} onDone={done}/>;if(kind==='listen')return <ListenCard id={id} onDone={done}/>;if(kind==='grammar')return <GrammarCard id={id} onDone={done}/>;return <DialogueCard id={id} onDone={done}/>}
+export function CardRoute({kind,id}:{kind:string;id:string}){const done=()=>{location.hash='#/'};if(kind==='review')return <ReviewCard id={id} onDone={done}/>;if(kind==='private')return <PrivateCourse id={id} onDone={done}/>;if(kind==='vocab')return <VocabCard lessonId={id||undefined} onDone={done}/>;if(kind==='listen')return <ListenCard id={id} onDone={done}/>;if(kind==='grammar')return <GrammarCard id={id} onDone={done}/>;return <DialogueCard id={id} onDone={done}/>}

@@ -15,6 +15,7 @@ export function validatePrivateLesson(value:unknown):ValidationResult{
  for(const k of arrays)if(!Array.isArray(value[k]))e.push(`${k} 必须是数组`)
  if(e.length)return{valid:false,errors:e}
  const lesson=value as unknown as PrivateLesson
+ if(lesson.sentences.length===0)e.push('sentences 至少需要一项')
  const unique=(items:{id:string}[],name:string)=>{const ids=items.map(x=>x.id);if(ids.some(x=>!str(x)))e.push(`${name} 存在空 id`);if(new Set(ids).size!==ids.length)e.push(`${name} id 重复`)}
  unique(lesson.sentences,'sentences');unique(lesson.concepts,'concepts');unique(lesson.vocabulary,'vocabulary');unique(lesson.grammar,'grammar');unique(lesson.chunks,'chunks');unique(lesson.retell,'retell');unique(lesson.transfers,'transfers')
  const sentenceIds=new Set(lesson.sentences.map(x=>x.id)),grammarIds=new Set(lesson.grammar.map(x=>x.id))
